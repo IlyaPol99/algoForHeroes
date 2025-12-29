@@ -10,13 +10,12 @@ public class GeneratePresetImpl implements GeneratePreset {
     private static final int ARMY_WIDTH = 3;
     private static final int ARMY_HEIGHT = 21;
     private static final int MAX_UNITS_PER_TYPE = 11;
+    private static final int TOTAL_POSITIONS = ARMY_WIDTH * ARMY_HEIGHT;
     Random random = new Random();
 
     @Override
     public Army generate(List<Unit> unitList, int maxPoints) {
-        // Ограничение по количеству юнитов
-        int maxUnitsPerType = 11;
-
+        //
         unitList.sort((u1, u2) -> {
             double attackRatio1 = (double) u1.getBaseAttack() / u1.getCost();
             double attackRatio2 = (double) u2.getBaseAttack() / u2.getCost();
@@ -31,21 +30,21 @@ public class GeneratePresetImpl implements GeneratePreset {
         Army army = new Army();
         int remainingPoints = maxPoints;
         int unitCounter = 0;
-        Set<Coordinates> coordinatesList = new HashSet<>();
+
+        List<Coordinates> allCoordinates = generateAllShuffledCoordinates();
+        int coordIndex = 0;
+
         List<Unit> unitsInArmy = new ArrayList<>();
+
         for (Unit unit : unitList) {
 
             int maxUnits = Math.min(MAX_UNITS_PER_TYPE, remainingPoints / unit.getCost());
 
             for (int i = 0; i < maxUnits; i++) {
-
                 String unitName = unit.getName() + " " + (unitCounter + 1);
-                Coordinates coordinates = new Coordinates(random.nextInt(ARMY_WIDTH), random.nextInt(ARMY_HEIGHT));
-                while (coordinatesList.contains(coordinates)){
-                    coordinates.setxCoord(random.nextInt(ARMY_WIDTH));
-                    coordinates.setyCoord(random.nextInt(ARMY_HEIGHT));
-                }
-                coordinatesList.add(coordinates);
+
+                Coordinates coordinates = allCoordinates.get(coordIndex++);
+
                 Unit newUnit = new Unit(
                         unitName,
                         unit.getUnitType(),
@@ -63,42 +62,63 @@ public class GeneratePresetImpl implements GeneratePreset {
                 unitCounter++;
             }
             remainingPoints -= maxUnits * unit.getCost();
-
         }
 
         army.setUnits(unitsInArmy);
         return army;
     }
 
-    private static class Coordinates{
+    private List<Coordinates> generateAllShuffledCoordinates() {
+        List<Coordinates> allCoords = new ArrayList<>(TOTAL_POSITIONS);
+
+        // Создаем все возможные координаты
+        for (int x = 0; x < ARMY_WIDTH; x++) {
+            for (int y = 0; y < ARMY_HEIGHT; y++) {
+                allCoords.add(new Coordinates(x, y));
+            }
+        }
+
+        // Перемешиваем координаты для случайного распределения
+        Collections.shuffle(allCoords);
+
+        return allCoords;
+    }
+
+    private static class Coordinates {
         private int x;
         private int y;
-        public Coordinates(int x, int y){
+
+        public Coordinates(int x, int y) {
             this.x = x;
             this.y = y;
         }
-        public void setxCoord(int x){
+
+        public void setxCoord(int x) {
             this.x = x;
         }
-        public void setyCoord(int y){
+
+        public void setyCoord(int y) {
             this.y = y;
         }
-        public int getxCoord(){
+
+        public int getxCoord() {
             return x;
         }
-        public int getyCoord(){
+
+        public int getyCoord() {
             return y;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Coordinates coordinates){
+            if (obj instanceof Coordinates coordinates) {
                 return x == coordinates.getxCoord() && y == coordinates.getyCoord();
             }
             return false;
         }
+
         @Override
-        public int hashCode(){
+        public int hashCode() {
             return x * 31 + y;
         }
     }

@@ -18,8 +18,6 @@ public class SimulateBattleImpl implements SimulateBattle {
         int round = 1;
 
         while (true) {
-
-
             List<Unit> alivePlayerUnits = new ArrayList<>();
             List<Unit> aliveComputerUnits = new ArrayList<>();
 
@@ -35,16 +33,13 @@ public class SimulateBattleImpl implements SimulateBattle {
                 }
             }
 
-
             if (alivePlayerUnits.isEmpty() || aliveComputerUnits.isEmpty()) {
                 break;
             }
 
-
             List<Unit> allUnits = new ArrayList<>();
             allUnits.addAll(alivePlayerUnits);
             allUnits.addAll(aliveComputerUnits);
-
 
             allUnits.sort((u1, u2) -> Integer.compare(
                     u2.getBaseAttack(),
@@ -71,7 +66,6 @@ public class SimulateBattleImpl implements SimulateBattle {
                     }
                 }
             }
-
             round++;
         }
     }
@@ -81,12 +75,10 @@ public class SimulateBattleImpl implements SimulateBattle {
         int baseDamage = attacker.getBaseAttack();
         double multiplier = 1.0;
 
-
         Map<String, Double> attackBonuses = attacker.getAttackBonuses();
         if (attackBonuses != null && attackBonuses.containsKey(target.getUnitType())) {
             multiplier *= attackBonuses.get(target.getUnitType());
         }
-
 
         Map<String, Double> defenceBonuses = target.getDefenceBonuses();
         if (defenceBonuses != null && defenceBonuses.containsKey(attacker.getAttackType())) {
@@ -95,9 +87,7 @@ public class SimulateBattleImpl implements SimulateBattle {
 
         int finalDamage = (int) Math.round(baseDamage * multiplier);
 
-
         target.setHealth(target.getHealth() - finalDamage);
-
     }
 
     private void printBattleLog(Unit attacker, Unit target) {
